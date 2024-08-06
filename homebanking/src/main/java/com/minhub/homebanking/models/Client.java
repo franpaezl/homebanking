@@ -1,10 +1,7 @@
 package com.minhub.homebanking.models;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import java.util.*;
 
 @Entity
 public class Client {
@@ -16,13 +13,25 @@ public class Client {
     private String lastName;
     private String email;
 
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Account> accounts = new HashSet<>();
+
     public Client() {
     }
 
-    public Client(String firstName, String lastName, String email) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public Client(String email, String lastName, String firstName, Set<Account> accounts) {
         this.email = email;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.accounts = accounts;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -49,16 +58,27 @@ public class Client {
         this.email = email;
     }
 
-    public long getId() {
-        return id;
+    public Set<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Set<Account> accounts) {
+        this.accounts = accounts;
+    }
+
+    public void addAccount(Account account) {
+        account.setOwner(this);
+        accounts.add(account);
     }
 
     @Override
     public String toString() {
         return "Client{" +
-                "email='" + email + '\'' +
-                ", lastName='" + lastName + '\'' +
+                "id=" + id +
                 ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", accounts=" + accounts +
                 '}';
     }
 }
