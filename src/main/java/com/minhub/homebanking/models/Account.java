@@ -1,8 +1,6 @@
 package com.minhub.homebanking.models;
 
 import jakarta.persistence.*;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -15,16 +13,18 @@ public class Account {
     private String accountNumber;
     private double balance;
     private LocalDateTime date;
+
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client owner;
+
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<Transaction> transactions;
 
     public Account() {
     }
 
-    public Account( String accountNumber, double balance, LocalDateTime date, Client owner, Set<Transaction> transactions) {
+    public Account(String accountNumber, double balance, LocalDateTime date, Client owner, Set<Transaction> transactions) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.date = date;
@@ -84,8 +84,6 @@ public class Account {
         this.transactions.add(transaction);
         transaction.setAccount(this);
     }
-
-
 
     @Override
     public String toString() {

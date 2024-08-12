@@ -16,14 +16,18 @@ public class Client {
     @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Account> accounts = new HashSet<>();
 
+    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
+    private Set<ClientLoan> clientLoans = new HashSet<>();
+
     public Client() {
     }
 
-    public Client(String email, String lastName, String firstName, Set<Account> accounts) {
-        this.email = email;
-        this.lastName = lastName;
+    public Client(String firstName, String lastName, String email, Set<Account> accounts, Set<ClientLoan> clientLoans) {
         this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
         this.accounts = accounts;
+        this.clientLoans = clientLoans;
     }
 
     public long getId() {
@@ -69,6 +73,19 @@ public class Client {
     public void addAccount(Account account) {
         account.setOwner(this);
         accounts.add(account);
+    }
+
+    public Set<ClientLoan> getClientLoans() {
+        return clientLoans;
+    }
+
+    public void setClientLoans(Set<ClientLoan> clientLoans) {
+        this.clientLoans = clientLoans;
+    }
+
+    public void addClientLoans(ClientLoan clientLoan){
+        clientLoan.setClient(this);
+        clientLoans.add(clientLoan);
     }
 
     @Override

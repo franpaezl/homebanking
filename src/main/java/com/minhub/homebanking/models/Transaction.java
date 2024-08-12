@@ -1,39 +1,36 @@
 package com.minhub.homebanking.models;
 
 import jakarta.persistence.*;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 public class Transaction {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private double amount;
-    private LocalDateTime date;
-    private TransactionType type;
     private String description;
+    private LocalDateTime date;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id")
     private Account account;
 
-
-
-
-    public Transaction(){
-
+    public Transaction() {
     }
-    public Transaction( double amount, LocalDateTime date, TransactionType type, String description, Account account) {
 
+    public Transaction(double amount, String description, LocalDateTime date, TransactionType type, Account account) {
         this.amount = amount;
+        this.description = description;
         this.date = date;
         this.type = type;
-        this.description = description;
         this.account = account;
     }
+
 
     public Long getId() {
         return id;
@@ -51,6 +48,14 @@ public class Transaction {
         this.amount = amount;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public LocalDateTime getDate() {
         return date;
     }
@@ -65,14 +70,6 @@ public class Transaction {
 
     public void setType(TransactionType type) {
         this.type = type;
-    }
-
-    public String getDecription() {
-        return description;
-    }
-
-    public void setDecription(String decription) {
-        this.description = decription;
     }
 
     public Account getAccount() {

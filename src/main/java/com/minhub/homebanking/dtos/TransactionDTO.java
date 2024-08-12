@@ -13,13 +13,10 @@ public class TransactionDTO {
     private LocalDateTime date;
     private TransactionType type;
 
-    public TransactionDTO() {
-    }
-
-    public TransactionDTO(Transaction transaction){
+    public TransactionDTO(Transaction transaction) {
         this.id = transaction.getId();
         this.amount = transaction.getAmount();
-        this.description = transaction.getDecription();
+        this.description = transaction.getDescription();
         this.date = transaction.getDate();
         this.type = transaction.getType();
     }

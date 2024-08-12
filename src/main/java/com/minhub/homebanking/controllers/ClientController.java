@@ -19,23 +19,22 @@ public class ClientController {
     private ClientRepository clientRepository;
 
     @GetMapping("/hello")
-    private String hola(){
-        return  "Hola";
+    private String hola() {
+        return "Hola";
     }
 
-
     @GetMapping("/")
-    public ResponseEntity<List<ClientDTO>> obtainClients(){
+    public ResponseEntity<List<ClientDTO>> obtainClients() {
         List<Client> clients = clientRepository.findAll();
         List<ClientDTO> clientDTOs = clients.stream().map(ClientDTO::new).collect(Collectors.toList());
         return new ResponseEntity<>(clientDTOs, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtainClientById(@PathVariable Long id){
+    public ResponseEntity<?> obtainClientById(@PathVariable Long id) {
         Client client = clientRepository.findById(id).orElse(null);
 
-        if (client == null){
+        if (client == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Client not found");
         }
         ClientDTO clientDTO = new ClientDTO(client);

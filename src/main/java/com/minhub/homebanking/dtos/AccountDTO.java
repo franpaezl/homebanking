@@ -1,33 +1,25 @@
 package com.minhub.homebanking.dtos;
 
-
-
 import com.minhub.homebanking.models.Account;
+import com.minhub.homebanking.models.Transaction;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AccountDTO {
-
-
     private long id;
     private String accountNumber;
     private double balance;
     private LocalDateTime date;
-    private Set<TransactionDTO> transaction;
+    private Set<TransactionDTO> transactions;
 
-    public AccountDTO(){
-
-    }
-
-    public AccountDTO(Account account){
+    public AccountDTO(Account account) {
         this.id = account.getId();
         this.accountNumber = account.getAccountNumber();
         this.balance = account.getBalance();
         this.date = account.getDate();
-        this.transaction = account.getTransactions().stream().map(TransactionDTO::new).collect(Collectors.toSet());
+        this.transactions = account.getTransactions().stream().map(TransactionDTO::new).collect(Collectors.toSet());
     }
 
     public long getId() {
@@ -46,7 +38,7 @@ public class AccountDTO {
         return date;
     }
 
-    public Set<TransactionDTO> getTransaction() {
-        return transaction;
+    public Set<TransactionDTO> getTransactions() {
+        return transactions;
     }
 }
