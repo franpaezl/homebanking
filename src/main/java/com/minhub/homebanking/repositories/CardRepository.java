@@ -1,10 +1,9 @@
 package com.minhub.homebanking.repositories;
 
-import com.minhub.homebanking.models.Client;
+import com.minhub.homebanking.models.Card;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ClientRepository extends JpaRepository<Client, Long> {
-    Client findByEmail(String email);
+public interface CardRepository extends JpaRepository<Card, Long> {
 }

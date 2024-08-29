@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/clients")
 public class ClientController {
@@ -18,26 +19,21 @@ public class ClientController {
     @Autowired
     private ClientRepository clientRepository;
 
-    @GetMapping("/hello")
-    private String hola() {
-        return "Hola";
-    }
 
     @GetMapping("/")
     public ResponseEntity<List<ClientDTO>> obtainClients() {
-        List<Client> clients = clientRepository.findAll();
-        List<ClientDTO> clientDTOs = clients.stream().map(ClientDTO::new).collect(Collectors.toList());
-        return new ResponseEntity<>(clientDTOs, HttpStatus.OK);
+        List<ClientDTO> clientDTOs = clientRepository.findAll().stream()
+                .map(ClientDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(clientDTOs);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtainClientById(@PathVariable Long id) {
-        Client client = clientRepository.findById(id).orElse(null);
-
-        if (client == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Client not found");
-        }
-        ClientDTO clientDTO = new ClientDTO(client);
-        return new ResponseEntity<>(clientDTO, HttpStatus.OK);
+    public ResponseEntity<ClientDTO> obtainClientById(@PathVariable Long id) {
+        return clientRepository.findById(id)
+                .map(ClientDTO::new)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(null));
     }
 }

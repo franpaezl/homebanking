@@ -2,6 +2,7 @@ package com.minhub.homebanking.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -9,22 +10,23 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
     private String accountNumber;
     private double balance;
     private LocalDateTime date;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id")
     private Client owner;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
-    private Set<Transaction> transactions;
+    private Set<Transaction> transactions = new HashSet<>();
 
     public Account() {
     }
 
-    public Account(String accountNumber, double balance, LocalDateTime date, Client owner, Set<Transaction> transactions) {
+    public Account(String accountNumber, double balance, LocalDateTime date) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.date = date;
