@@ -26,7 +26,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         String role = username.contains("@admin") ? "ADMIN" : "CLIENT";
 
-        return User.withUsername(username)
+        return User
+                .withUsername(username)
                 .password(client.getPassword())
                 .roles(role)
                 .build();

@@ -1,22 +1,26 @@
 package com.minhub.homebanking.utils;
 
-import java.util.Random;
+import com.minhub.homebanking.repositories.CardRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CVVGenerated {
-    public static String generateNumberCard() {
-        Random random = new Random();
-        String number = "";
-        for (int i = 0; i < 4; i++) {
-            number += random.nextInt((9999 - 1000) + 1) + 1000;
-            if (i < 3) {
-                number += "-";
 
-            }
+    @Autowired
+    private static CardRepository cardRepository;
 
-        }
-        return number;
+    public CVVGenerated(CardRepository cardRepository) {
+        CVVGenerated.cardRepository = cardRepository;
     }
 
+    public static String generateCVV() {
+        String cvvNumber;
 
+        do {
+            cvvNumber = String.format("%03d", (int) (Math.random() * 1000));
+        } while (cardRepository.existsByCvv(cvvNumber));
+
+        return cvvNumber;
+    }
 }
-

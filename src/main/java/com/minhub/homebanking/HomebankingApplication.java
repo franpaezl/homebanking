@@ -27,10 +27,12 @@ public class HomebankingApplication {
 	@Bean
 	public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository, TransactionRepository transactionRepository, LoanRepository loanRepository, ClientLoanRepository clientLoanRepository,CardRepository cardRepository) {
 		return (args) -> {
+
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime tomorrow = now.plusDays(1);
 
 			// Create clients
+
 			Client client1 = new Client("Melba","Morel",  "melbamorel@hotmail.com",passwordEncoder.encode("melba123"));
 			Client client2 = new Client("Fran", "Paez", "fran.paez@example.com",passwordEncoder.encode("melba123"));
 			Client client3 = new Client("Pepe", "Pérez" ,"pepe.perez@example.com",passwordEncoder.encode("melba123"));

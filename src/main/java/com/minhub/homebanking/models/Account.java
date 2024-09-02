@@ -30,8 +30,6 @@ public class Account {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.date = date;
-        this.owner = owner;
-        this.transactions = transactions;
     }
 
     public long getId() {

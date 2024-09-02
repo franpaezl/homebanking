@@ -40,7 +40,8 @@ public class JwtUtilService {
     }
 
     private String createToken(Map<String, Object> claims, String username) {
-        return Jwts.builder()
+        return Jwts
+                .builder()
                 .claims(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
