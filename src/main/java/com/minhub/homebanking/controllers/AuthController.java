@@ -3,9 +3,12 @@ package com.minhub.homebanking.controllers;
 import com.minhub.homebanking.dtos.ClientDTO;
 import com.minhub.homebanking.dtos.LoginDTO;
 import com.minhub.homebanking.dtos.RegisterDTO;
+import com.minhub.homebanking.models.Account;
 import com.minhub.homebanking.models.Client;
+import com.minhub.homebanking.repositories.AccountRepository;
 import com.minhub.homebanking.repositories.ClientRepository;
 import com.minhub.homebanking.servicesSecurity.JwtUtilService;
+import com.minhub.homebanking.utils.AccountNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @RestController
@@ -37,6 +43,12 @@ public class AuthController {
     @Autowired
     private JwtUtilService jwtUtilService;
 
+    @Autowired
+    private AccountNumberGenerator accountNumberGenerator;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         try {
@@ -53,6 +65,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterDTO registerDTO) {
+        if (registerDTO.email().isBlank()) {
+            return new ResponseEntity<>("The email field cannot be empty", HttpStatus.BAD_REQUEST);
+        }
         if (clientRepository.findByEmail(registerDTO.email()) != null) {
             return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
         }
@@ -61,13 +76,22 @@ public class AuthController {
             return new ResponseEntity<>("First name and last name cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
+
         if (registerDTO.password().length() < 8) {
             return new ResponseEntity<>("Password must be at least 8 characters long", HttpStatus.BAD_REQUEST);
         }
 
         String encodedPassword = passwordEncoder.encode(registerDTO.password());
 
+        String accountNumber = accountNumberGenerator.makeAccountNumber();
+
+        Account newAccount =  new Account(accountNumber, 0, LocalDateTime.now());
+        accountRepository.save(newAccount);
+
+
+
         Client newClient = new Client(registerDTO.firstName(), registerDTO.lastName(), registerDTO.email(), encodedPassword);
+        newClient.addAccount(newAccount);
         clientRepository.save(newClient);
 
         return new ResponseEntity<>("Client registered successfully", HttpStatus.CREATED);
