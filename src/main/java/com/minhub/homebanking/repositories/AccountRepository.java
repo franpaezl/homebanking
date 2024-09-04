@@ -9,7 +9,10 @@ import java.util.List;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    Boolean existsByNumber(String number);
-    List<Account> findByOwner (Client owner);
-    Account findByAccount(String account);
+    Boolean existsByAccountNumber(String accountNumber);
+    Account findByAccountNumber(String accountNumber);
+    Boolean existsByIdAndOwner(Long accountId, Client client);
+    List<Account> findByOwner(Client owner);
 }
+
+

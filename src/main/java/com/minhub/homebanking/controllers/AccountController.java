@@ -73,7 +73,7 @@ public class AccountController {
     public ResponseEntity<?> getClientAccounts(Authentication authentication) {
         Client client = clientRepository.findByEmail(authentication.getName());
         List<Account> clientAccounts = accountRepository.findByOwner(client);
-        List<AccountDTO> clientAccountDto = clientAccounts.stream().map(AccountDTO::new).collect(Collectors.toList());
-        return new ResponseEntity<>(clientAccountDto, HttpStatus.OK);
+        List<AccountDTO> clientAccountDTO = clientAccounts.stream().map(AccountDTO::new).collect(Collectors.toList());
+        return new ResponseEntity<>(clientAccountDTO, HttpStatus.OK);
     }
 }
