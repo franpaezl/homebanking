@@ -1,5 +1,6 @@
 package com.minhub.homebanking.models;
 
+import com.minhub.homebanking.dtos.LoanAplicationDTO;
 import jakarta.persistence.*;
 import java.util.List;
 import java.util.Set;
@@ -77,3 +78,39 @@ public class Loan {
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

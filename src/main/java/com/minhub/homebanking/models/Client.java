@@ -1,22 +1,14 @@
 package com.minhub.homebanking.models;
 
-import com.minhub.homebanking.utils.CVVGenerated;
-import com.minhub.homebanking.utils.CardNumberGenerated;
 import jakarta.persistence.*;
-import org.springframework.beans.factory.annotation.Autowired;
+
 
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 @Entity
 public class Client {
 
-    @Autowired
-    private CVVGenerated cvvGenerated;
-
-    @Autowired
-    private CardNumberGenerated cardNumberGenerated;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +27,7 @@ public class Client {
 
     @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
     private Set<Card> cards = new HashSet<>();
+
 
     public Client() {
     }
@@ -113,7 +106,6 @@ public class Client {
     }
 
 
-
     public void addAccount(Account account) {
         account.setOwner(this);
         this.accounts.add(account);
@@ -127,8 +119,6 @@ public class Client {
     public void addCards(Card card) {
         this.cards.add(card);
         card.setClient(this);
-        card.setNumber(cardNumberGenerated.generateCardNumber());
         card.setCardHolder(this.getFirstName() + " " + this.getLastName());
-        card.setCvv(cvvGenerated.generateCVV());
     }
 }

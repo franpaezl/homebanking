@@ -28,9 +28,11 @@ public class Card {
     public Card() {
     }
 
-    public Card( CardType type, CardColor color, LocalDateTime fromDate, LocalDateTime thruDate) {
+    public Card(CardType type, CardColor color, String cvv, String number, LocalDateTime fromDate, LocalDateTime thruDate) {
         this.type = type;
         this.color = color;
+        this.cvv = cvv;
+        this.number = number;
         this.fromDate = fromDate;
         this.thruDate = thruDate;
     }

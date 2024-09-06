@@ -3,103 +3,32 @@ package com.minhub.homebanking.controllers;
 import com.minhub.homebanking.dtos.ClientDTO;
 import com.minhub.homebanking.dtos.LoginDTO;
 import com.minhub.homebanking.dtos.RegisterDTO;
-import com.minhub.homebanking.models.Account;
-import com.minhub.homebanking.models.Client;
-import com.minhub.homebanking.repositories.AccountRepository;
-import com.minhub.homebanking.repositories.ClientRepository;
-import com.minhub.homebanking.servicesSecurity.JwtUtilService;
-import com.minhub.homebanking.utils.AccountNumberGenerator;
+import com.minhub.homebanking.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private JwtUtilService jwtUtilService;
-
-    @Autowired
-    private AccountNumberGenerator accountNumberGenerator;
-
-    @Autowired
-    private AccountRepository accountRepository;
+    private AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.password()));
-
-            final UserDetails userDetails = userDetailsService.loadUserByUsername(loginDTO.email());
-            final String jwt = jwtUtilService.generateToken(userDetails);
-            return ResponseEntity.ok(jwt);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Email or password invalid", HttpStatus.BAD_REQUEST);
-        }
+        return authService.login(loginDTO);
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterDTO registerDTO) {
-        if (registerDTO.email().isBlank()) {
-            return new ResponseEntity<>("The email field cannot be empty", HttpStatus.BAD_REQUEST);
-        }
-        if (clientRepository.findByEmail(registerDTO.email()) != null) {
-            return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
-        }
-
-        if (registerDTO.firstName().isBlank() || registerDTO.lastName().isBlank()) {
-            return new ResponseEntity<>("First name and last name cannot be empty", HttpStatus.BAD_REQUEST);
-        }
-
-
-        if (registerDTO.password().length() < 8) {
-            return new ResponseEntity<>("Password must be at least 8 characters long", HttpStatus.BAD_REQUEST);
-        }
-
-        String encodedPassword = passwordEncoder.encode(registerDTO.password());
-
-        String accountNumber = accountNumberGenerator.makeAccountNumber();
-
-        Account newAccount =  new Account(accountNumber, 0, LocalDateTime.now());
-        accountRepository.save(newAccount);
-
-
-
-        Client newClient = new Client(registerDTO.firstName(), registerDTO.lastName(), registerDTO.email(), encodedPassword);
-        newClient.addAccount(newAccount);
-        clientRepository.save(newClient);
-
-        return new ResponseEntity<>("Client registered successfully", HttpStatus.CREATED);
+        return authService.register(registerDTO);
     }
 
     @GetMapping("/current")
     public ResponseEntity<?> getClient(Authentication authentication) {
-        Client client = clientRepository.findByEmail(authentication.getName());
-        return ResponseEntity.ok(new ClientDTO(client));
+        ClientDTO clientDTO = authService.getCurrentClient(authentication);
+        return ResponseEntity.ok(clientDTO);
     }
 }

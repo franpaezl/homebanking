@@ -38,9 +38,9 @@ public class WebConfiguration {
 
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/api/clients/**").hasRole("ADMIN")
+                                .requestMatchers("/api/clients/**").permitAll()
                                 .requestMatchers("/api/auth/login", "/api/auth/register", "/h2-console/**").permitAll() // Permite acceso sin autenticación a estas rutas.
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class) // Añade el filtro JWT antes del filtro de autenticación por nombre de usuario y contraseña.
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // Configura la sesión como sin estado.

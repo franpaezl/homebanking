@@ -5,6 +5,7 @@ import com.minhub.homebanking.models.Account;
 import com.minhub.homebanking.models.Client;
 import com.minhub.homebanking.repositories.AccountRepository;
 import com.minhub.homebanking.repositories.ClientRepository;
+import com.minhub.homebanking.service.AccountService;
 import com.minhub.homebanking.utils.AccountNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,48 +23,31 @@ import java.util.stream.Collectors;
 public class AccountController {
 
     @Autowired
-    private ClientRepository clientRepository;
+    private AccountService accountService;
 
-    @Autowired
-    private AccountRepository accountRepository;
+    @Autowired ClientRepository clientRepository;
 
-    @Autowired
-    private AccountNumberGenerator accountNumberGenerator;
+    @GetMapping("/accounts")
+    public ResponseEntity<List<AccountDTO>> getAllAccounts() {
+        List<Account> getAllAccounts = accountService.allAccounts();
+        List<AccountDTO> allAccountsDto = accountService.transformAccountsToAccountsDTO(getAllAccounts);
+        return new ResponseEntity<>(allAccountsDto, HttpStatus.OK);
+    }
 
-//    @GetMapping("/")
-//    public ResponseEntity<List<AccountDTO>> getAllAccounts() {
-//        List<Account> getAllAccounts = accountRepository.findAll();
-//        List<AccountDTO> allAccountsDto = getAllAccounts.stream().map(AccountDTO::new).collect(Collectors.toList());
-//        return new ResponseEntity<>(allAccountsDto, HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/{id}")
-//    public ResponseEntity<?> getAccountById(@PathVariable Long id) {
-//        Optional<Account> accountById = accountRepository.findById(id);
-//        if (accountById.isEmpty()) {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        } else {
-//            Account accountData = accountById.get();
-//            AccountDTO accountDTO = new AccountDTO(accountData);
-//            return new ResponseEntity<>(accountDTO, HttpStatus.OK);
-//        }
-//    }
+    @GetMapping("accounts/{id}")
+    public ResponseEntity<?> getAccountById(@PathVariable Long id) {
+        Optional<AccountDTO> accountDTO = accountService.getAccountById(id);
+        return accountDTO.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 
     @PostMapping("/clients/current/accounts")
     public ResponseEntity<?> createAccount(Authentication authentication) {
         try {
-            Client client = clientRepository.findByEmail(authentication.getName());
-
-            if (client.getAccounts().size() == 3) {
-                return new ResponseEntity<>("You cannot create a new account at this time. You have reached the maximum number of allowed accounts (3)", HttpStatus.FORBIDDEN);
-            }
-
-            Account newAccount = new Account(accountNumberGenerator.makeAccountNumber(), 00.0, LocalDateTime.now());
-            client.addAccount(newAccount);
-            accountRepository.save(newAccount);
-            clientRepository.save(client);
-
+            Account newAccount = accountService.addAndSaveAccount(authentication);
             return new ResponseEntity<>("Account created", HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             return new ResponseEntity<>("Error creating account: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -71,9 +55,11 @@ public class AccountController {
 
     @GetMapping("/clients/current/accounts")
     public ResponseEntity<?> getClientAccounts(Authentication authentication) {
-        Client client = clientRepository.findByEmail(authentication.getName());
-        List<Account> clientAccounts = accountRepository.findByOwner(client);
-        List<AccountDTO> clientAccountDTO = clientAccounts.stream().map(AccountDTO::new).collect(Collectors.toList());
-        return new ResponseEntity<>(clientAccountDTO, HttpStatus.OK);
+        try {
+            List<AccountDTO> clientAccountDTO = accountService.getClientAccounts(authentication);
+            return new ResponseEntity<>(clientAccountDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving accounts: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

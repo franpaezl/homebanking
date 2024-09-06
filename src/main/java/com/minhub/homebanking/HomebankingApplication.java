@@ -2,6 +2,8 @@ package com.minhub.homebanking;
 
 import com.minhub.homebanking.models.*;
 import com.minhub.homebanking.repositories.*;
+import com.minhub.homebanking.utils.CVVGenerated;
+import com.minhub.homebanking.utils.CardNumberGenerated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 @SpringBootApplication
 public class HomebankingApplication {
@@ -24,120 +25,72 @@ public class HomebankingApplication {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	@Bean
-	public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository, TransactionRepository transactionRepository, LoanRepository loanRepository, ClientLoanRepository clientLoanRepository,CardRepository cardRepository) {
-		return (args) -> {
+	@Autowired
+	private CardNumberGenerated cardNumberGenerated;
 
+	@Autowired
+	private CVVGenerated cvvGenerated;
+
+	@Bean
+	public CommandLineRunner initData(ClientRepository clientRepository,
+									  AccountRepository accountRepository,
+									  TransactionRepository transactionRepository,
+									  LoanRepository loanRepository,
+									  ClientLoanRepository clientLoanRepository,
+									  CardRepository cardRepository) {
+		return (args) -> {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime tomorrow = now.plusDays(1);
 
-			// Create clients
-
-			Client client1 = new Client("Melba","Morel",  "melbamorel@hotmail.com",passwordEncoder.encode("melba123"));
-			Client client2 = new Client("Fran", "Paez", "fran.paez@example.com",passwordEncoder.encode("melba123"));
-			Client client3 = new Client("Pepe", "Pérez" ,"pepe.perez@example.com",passwordEncoder.encode("melba123"));
+			// Crear clientes
+			Client client1 = new Client("Melba", "Morel", "melbamorel@hotmail.com", passwordEncoder.encode("melba123"));
+			Client client2 = new Client("Fran", "Paez", "fran.paez@example.com", passwordEncoder.encode("melba123"));
+			Client client3 = new Client("Pepe", "Pérez", "pepe.perez@example.com", passwordEncoder.encode("melba123"));
 
 			clientRepository.save(client1);
 			clientRepository.save(client2);
 			clientRepository.save(client3);
 
-			// Create Accounts and Transactions for client1
+			// Crear cuentas para client1
 			Account account1 = new Account("VIN001", 5000, now);
-			Account account2 = new Account("VIN002", 7500, tomorrow);
+			Account account2 = new Account("VIN002", 7500, now);
 
-			Transaction transaction1_1 = new Transaction(1000, "Deposit", now, TransactionType.CREDIT, account1);
-				Transaction transaction1_2 = new Transaction(-500, "Withdrawal", tomorrow, TransactionType.DEBIT, account1);
-			Transaction transaction1_3 = new Transaction(1500, "Deposit", now, TransactionType.CREDIT, account1);
+			// Crear transacciones para account1 y account2
 
-			Transaction transaction2_1 = new Transaction(2000, "Deposit", now, TransactionType.CREDIT, account2);
-			Transaction transaction2_2 = new Transaction(-1000, "Withdrawal", tomorrow, TransactionType.DEBIT, account2);
-			Transaction transaction2_3 = new Transaction(2000, "Deposit", now, TransactionType.CREDIT, account2);
-
-			account1.addTransaction(transaction1_1);
-			account1.addTransaction(transaction1_2);
-			account1.addTransaction(transaction1_3);
-
-			account2.addTransaction(transaction2_1);
-			account2.addTransaction(transaction2_2);
-			account2.addTransaction(transaction2_3);
 
 			client1.addAccount(account1);
 			client1.addAccount(account2);
 
 			accountRepository.save(account1);
 			accountRepository.save(account2);
-			transactionRepository.save(transaction1_1);
-			transactionRepository.save(transaction1_2);
-			transactionRepository.save(transaction1_3);
-			transactionRepository.save(transaction2_1);
-			transactionRepository.save(transaction2_2);
-			transactionRepository.save(transaction2_3);
 
-			// Create Accounts and Transactions for client2
+			// Crear cuentas para client2
 			Account account3 = new Account("VIN003", 2000, now);
-			Account account4 = new Account("VIN004", 3000, tomorrow);
+			Account account4 = new Account("VIN004", 3000, now);
 
-			Transaction transaction3_1 = new Transaction(500, "Deposit", now, TransactionType.CREDIT, account3);
-			Transaction transaction3_2 = new Transaction(-200, "Withdrawal", tomorrow, TransactionType.DEBIT, account3);
-			Transaction transaction3_3 = new Transaction(1300, "Deposit", now, TransactionType.CREDIT, account3);
+			// Crear transacciones para account3 y account4
 
-			Transaction transaction4_1 = new Transaction(1500, "Deposit", now, TransactionType.CREDIT, account4);
-			Transaction transaction4_2 = new Transaction(-800, "Withdrawal", tomorrow, TransactionType.DEBIT, account4);
-			Transaction transaction4_3 = new Transaction(700, "Deposit", now, TransactionType.CREDIT, account4);
-
-			account3.addTransaction(transaction3_1);
-			account3.addTransaction(transaction3_2);
-			account3.addTransaction(transaction3_3);
-
-			account4.addTransaction(transaction4_1);
-			account4.addTransaction(transaction4_2);
-			account4.addTransaction(transaction4_3);
 
 			client2.addAccount(account3);
 			client2.addAccount(account4);
 
 			accountRepository.save(account3);
 			accountRepository.save(account4);
-			transactionRepository.save(transaction3_1);
-			transactionRepository.save(transaction3_2);
-			transactionRepository.save(transaction3_3);
-			transactionRepository.save(transaction4_1);
-			transactionRepository.save(transaction4_2);
-			transactionRepository.save(transaction4_3);
 
-			// Create Accounts and Transactions for client3
+			// Crear cuentas para client3
 			Account account5 = new Account("VIN005", 1000, now);
-			Account account6 = new Account("VIN006", 4000, tomorrow);
+			Account account6 = new Account("VIN006", 4000, now);
 
-			Transaction transaction5_1 = new Transaction(300, "Deposit", now, TransactionType.CREDIT, account5);
-			Transaction transaction5_2 = new Transaction(-100, "Withdrawal", tomorrow, TransactionType.DEBIT, account5);
-			Transaction transaction5_3 = new Transaction(600, "Deposit", now, TransactionType.CREDIT, account5);
+			// Crear transacciones para account5 y account6
 
-			Transaction transaction6_1 = new Transaction(2500, "Deposit", now, TransactionType.CREDIT, account6);
-			Transaction transaction6_2 = new Transaction(-1500, "Withdrawal", tomorrow, TransactionType.DEBIT, account6);
-			Transaction transaction6_3 = new Transaction(500, "Deposit", now, TransactionType.CREDIT, account6);
-
-			account5.addTransaction(transaction5_1);
-			account5.addTransaction(transaction5_2);
-			account5.addTransaction(transaction5_3);
-
-			account6.addTransaction(transaction6_1);
-			account6.addTransaction(transaction6_2);
-			account6.addTransaction(transaction6_3);
 
 			client3.addAccount(account5);
 			client3.addAccount(account6);
 
 			accountRepository.save(account5);
 			accountRepository.save(account6);
-			transactionRepository.save(transaction5_1);
-			transactionRepository.save(transaction5_2);
-			transactionRepository.save(transaction5_3);
-			transactionRepository.save(transaction6_1);
-			transactionRepository.save(transaction6_2);
-			transactionRepository.save(transaction6_3);
 
-			// Create Loans
+			// Crear préstamos
 			Loan mortgage = new Loan("mortgage", 500000, Arrays.asList(12, 24, 36, 48, 60), new HashSet<>());
 			Loan personal = new Loan("personal", 100000, Arrays.asList(6, 12, 24), new HashSet<>());
 			Loan automotive = new Loan("automotive", 300000, Arrays.asList(6, 12, 24, 36), new HashSet<>());
@@ -146,7 +99,7 @@ public class HomebankingApplication {
 			loanRepository.save(personal);
 			loanRepository.save(automotive);
 
-			// Create ClientLoans
+			// Crear préstamos de clientes
 			ClientLoan clientLoan1 = new ClientLoan(400000, 60);
 			client1.addClientLoans(clientLoan1);
 			mortgage.addClientLoans(clientLoan1);
@@ -163,32 +116,55 @@ public class HomebankingApplication {
 			client2.addClientLoans(clientLoan4);
 			automotive.addClientLoans(clientLoan4);
 
-			// Save ClientLoans
 			clientLoanRepository.save(clientLoan1);
 			clientLoanRepository.save(clientLoan2);
 			clientLoanRepository.save(clientLoan3);
 			clientLoanRepository.save(clientLoan4);
 
-
-			Card card1 = new Card(CardType.DEBIT,CardColor.GOLD,now,now.plusYears(5));
-			Card card2 = new Card(CardType.DEBIT,CardColor.TITANIUM,now,now.plusYears(5));
+			// Crear tarjetas
+			Card card1 = new Card(CardType.DEBIT, CardColor.GOLD, cardNumberGenerated.generateCardNumber(), cvvGenerated.generateCVV(), now, now.plusYears(5));
+			Card card2 = new Card(CardType.DEBIT, CardColor.TITANIUM, cardNumberGenerated.generateCardNumber(), cvvGenerated.generateCVV(), now, now.plusYears(5));
 			client1.addCards(card1);
 			client1.addCards(card2);
+
 			cardRepository.save(card1);
 			cardRepository.save(card2);
 
-			Card card3 = new Card(CardType.DEBIT,CardColor.SILVER,now,now.plusYears(5));
+			Card card3 = new Card(CardType.DEBIT, CardColor.SILVER, cardNumberGenerated.generateCardNumber(), cvvGenerated.generateCVV(), now, now.plusYears(5));
 			client2.addCards(card3);
 			cardRepository.save(card3);
 		};
-
-
 	}
 
-
-	}
-
-
-
-
-
+//	private void createAndSaveTransactions(Account account1, Account account2, TransactionRepository transactionRepository) {
+//		LocalDateTime now = LocalDateTime.now();
+//		LocalDateTime tomorrow = now.plusDays(1);
+//
+//		// Crear transacciones para account1
+//		Transaction transaction1_1 = new Transaction(5000, "Debit", now, TransactionType.CREDIT);
+//		Transaction transaction1_2 = new Transaction(-500, "Retiro", tomorrow, TransactionType.DEBIT);
+//		Transaction transaction1_3 = new Transaction(1500, "Depósito", now, TransactionType.CREDIT);
+//
+//		// Crear transacciones para account2
+//		Transaction transaction2_1 = new Transaction(2000, "Depósito", now, TransactionType.CREDIT);
+//		Transaction transaction2_2 = new Transaction(-1000, "Retiro", tomorrow, TransactionType.DEBIT);
+//		Transaction transaction2_3 = new Transaction(2000, "Depósito", now, TransactionType.CREDIT);
+//
+//		// Agregar transacciones a las cuentas
+//		account1.addTransaction(transaction1_1);
+//		account1.addTransaction(transaction1_2);
+//		account1.addTransaction(transaction1_3);
+//
+//		account2.addTransaction(transaction2_1);
+//		account2.addTransaction(transaction2_2);
+//		account2.addTransaction(transaction2_3);
+//
+//		// Guardar transacciones
+//		transactionRepository.save(transaction1_1);
+//		transactionRepository.save(transaction1_2);
+//		transactionRepository.save(transaction1_3);
+//		transactionRepository.save(transaction2_1);
+//		transactionRepository.save(transaction2_2);
+//		transactionRepository.save(transaction2_3);
+//	}
+}

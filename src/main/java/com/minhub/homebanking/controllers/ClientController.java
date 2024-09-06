@@ -1,15 +1,13 @@
 package com.minhub.homebanking.controllers;
 
-import com.minhub.homebanking.models.Client;
-import com.minhub.homebanking.repositories.ClientRepository;
 import com.minhub.homebanking.dtos.ClientDTO;
+import com.minhub.homebanking.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -17,23 +15,19 @@ import java.util.stream.Collectors;
 public class ClientController {
 
     @Autowired
-    private ClientRepository clientRepository;
-
+    private ClientService clientService;
 
     @GetMapping("/")
-    public ResponseEntity<List<ClientDTO>> obtainClients() {
-        List<ClientDTO> clientDTOs = clientRepository.findAll().stream()
-                .map(ClientDTO::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(clientDTOs);
+    public ResponseEntity<List<ClientDTO>> getAllClients() {
+        return new ResponseEntity<>( clientService.getAllClientDTO(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDTO> obtainClientById(@PathVariable Long id) {
-        return clientRepository.findById(id)
-                .map(ClientDTO::new)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(null));
+    public ResponseEntity<?> getClientById(@PathVariable Long id) {
+        if (clientService.getClientById(id) == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }else{
+            return new ResponseEntity<>(clientService.getClientDTO(clientService.getClientById(id)), HttpStatus.OK);
+        }
     }
 }
