@@ -25,7 +25,7 @@ public class TransactionController {
     public ResponseEntity<?> makeTransaction(@RequestBody MakeTransactionDTO makeTransactionDTO, Authentication authentication) {
         try {
             // Llamar al método del servicio para crear la transacción
-            Transaction transaction = transactionService.createTransaction(makeTransactionDTO, authentication);
+            Transaction transaction = transactionService.makeTransaction(makeTransactionDTO, authentication);
 
             // Devolver una respuesta de éxito
             return new ResponseEntity<>("Transaction completed successfully. Transaction ID: " + transaction.getId(), HttpStatus.CREATED);

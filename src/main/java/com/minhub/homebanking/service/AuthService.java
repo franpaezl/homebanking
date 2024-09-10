@@ -19,12 +19,6 @@ public interface AuthService {
 
     void registerValidate(RegisterDTO registerDTO);
 
-    String encodedPassword(RegisterDTO registerDTO);
-
-    Account createNewAccount();
-
-    Client createNewClient(RegisterDTO registerDTO);
-
     ResponseEntity<?> register(RegisterDTO registerDTO);
 
     ResponseEntity<?> login(LoginDTO loginDTO);

@@ -2,6 +2,7 @@ package com.minhub.homebanking;
 
 import com.minhub.homebanking.models.*;
 import com.minhub.homebanking.repositories.*;
+import com.minhub.homebanking.service.CardService;
 import com.minhub.homebanking.utils.CVVGenerated;
 import com.minhub.homebanking.utils.CardNumberGenerated;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class HomebankingApplication {
 									  TransactionRepository transactionRepository,
 									  LoanRepository loanRepository,
 									  ClientLoanRepository clientLoanRepository,
-									  CardRepository cardRepository) {
+									  CardRepository cardRepository, CardService cardService) {
 		return (args) -> {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime tomorrow = now.plusDays(1);
@@ -122,15 +123,15 @@ public class HomebankingApplication {
 			clientLoanRepository.save(clientLoan4);
 
 			// Crear tarjetas
-			Card card1 = new Card(CardType.DEBIT, CardColor.GOLD, cardNumberGenerated.generateCardNumber(), cvvGenerated.generateCVV(), now, now.plusYears(5));
-			Card card2 = new Card(CardType.DEBIT, CardColor.TITANIUM, cardNumberGenerated.generateCardNumber(), cvvGenerated.generateCVV(), now, now.plusYears(5));
+			Card card1 = new Card(CardType.DEBIT, CardColor.GOLD, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
+			Card card2 = new Card(CardType.DEBIT, CardColor.TITANIUM, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
 			client1.addCards(card1);
 			client1.addCards(card2);
 
 			cardRepository.save(card1);
 			cardRepository.save(card2);
 
-			Card card3 = new Card(CardType.DEBIT, CardColor.SILVER, cardNumberGenerated.generateCardNumber(), cvvGenerated.generateCVV(), now, now.plusYears(5));
+			Card card3 = new Card(CardType.DEBIT, CardColor.SILVER, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
 			client2.addCards(card3);
 			cardRepository.save(card3);
 		};

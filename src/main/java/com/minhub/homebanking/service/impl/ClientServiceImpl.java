@@ -1,10 +1,13 @@
 package com.minhub.homebanking.service.impl;
 
 import com.minhub.homebanking.dtos.ClientDTO;
+import com.minhub.homebanking.dtos.RegisterDTO;
 import com.minhub.homebanking.models.Client;
 import com.minhub.homebanking.repositories.ClientRepository;
 import com.minhub.homebanking.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,9 +19,17 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @Override
     public List<Client> getAllClient() {
         return clientRepository.findAll();
+    }
+
+    @Override
+    public Client getAuthenticatedClient(Authentication authentication) {
+        return clientRepository.findByEmail(authentication.getName());
     }
 
     @Override
@@ -37,4 +48,26 @@ public class ClientServiceImpl implements ClientService {
     public ClientDTO getClientDTO(Client client) {
         return new ClientDTO(client);
     }
+
+    @Override
+    public String encodedPassword(RegisterDTO registerDTO) {
+        return passwordEncoder.encode(registerDTO.password());
+    }
+
+    @Override
+    public Client createNewClient(RegisterDTO registerDTO) {
+        // Codifica la contraseña del cliente
+        String encodedPassword = encodedPassword(registerDTO);
+
+        // Crea un nuevo objeto Client con los datos proporcionados
+        return new Client(
+                registerDTO.firstName(),
+                registerDTO.lastName(),
+                registerDTO.email(),
+                encodedPassword
+        );
+    }
 }
+
+
+

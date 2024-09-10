@@ -3,6 +3,7 @@ package com.minhub.homebanking.controllers;
 import com.minhub.homebanking.dtos.LoanAplicationDTO;
 import com.minhub.homebanking.dtos.LoanDTO;
 import com.minhub.homebanking.models.Client;
+import com.minhub.homebanking.models.Loan;
 import com.minhub.homebanking.repositories.ClientRepository;
 import com.minhub.homebanking.service.LoanService;
 import jakarta.transaction.Transactional;
@@ -34,8 +35,8 @@ public class LoanController {
     @PostMapping("/")
     public ResponseEntity<?> solicitLoan(@RequestBody LoanAplicationDTO loanAplicationDTO, Authentication authentication) {
         try {
-            Client client = clientRepository.findByEmail(authentication.getName());
-            loanService.processLoanApplication(loanAplicationDTO, client);
+
+            Loan loan = loanService.processLoanApplication(loanAplicationDTO, authentication);
             return ResponseEntity.ok("Loan application approved.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());

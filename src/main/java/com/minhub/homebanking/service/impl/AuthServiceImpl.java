@@ -7,7 +7,9 @@ import com.minhub.homebanking.models.Account;
 import com.minhub.homebanking.models.Client;
 import com.minhub.homebanking.repositories.AccountRepository;
 import com.minhub.homebanking.repositories.ClientRepository;
+import com.minhub.homebanking.service.AccountService;
 import com.minhub.homebanking.service.AuthService;
+import com.minhub.homebanking.service.ClientService;
 import com.minhub.homebanking.servicesSecurity.JwtUtilService;
 import com.minhub.homebanking.utils.AccountNumberGenerator;
 import com.minhub.homebanking.utils.AuthValidate;
@@ -43,13 +45,16 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private AccountNumberGenerator accountNumberGenerator;
-
-    @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private AccountService accountService;
+
+    @Autowired
+    private ClientService clientService;
 
     @Override
     public void authenticate(String email, String password) {
@@ -69,32 +74,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void registerValidate(RegisterDTO registerDTO) {
-        authValidate.validateRegisterDTO(registerDTO);
+        if (registerDTO.email().isBlank()) {
+            throw new IllegalArgumentException("The email field cannot be empty");
+        }
+        if (clientRepository.findByEmail(registerDTO.email()) != null) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        if (registerDTO.firstName().isBlank() || registerDTO.lastName().isBlank()) {
+            throw new IllegalArgumentException("First name and last name cannot be empty");
+        }
+        if (registerDTO.password().length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long");
+        }
     }
 
-    @Override
-    public String encodedPassword(RegisterDTO registerDTO) {
-        return passwordEncoder.encode(registerDTO.password());
-    }
 
-    @Override
-    public Account createNewAccount() {
-        return new Account(accountNumberGenerator.makeAccountNumber(), 0, LocalDateTime.now());
-    }
-
-    @Override
-    public Client createNewClient(RegisterDTO registerDTO) {
-        // Codifica la contraseña del cliente
-        String encodedPassword = encodedPassword(registerDTO);
-
-        // Crea un nuevo objeto Client con los datos proporcionados
-        return new Client(
-                registerDTO.firstName(),
-                registerDTO.lastName(),
-                registerDTO.email(),
-                encodedPassword
-        );
-    }
 
     @Override
     public ResponseEntity<?> register(RegisterDTO registerDTO) {
@@ -103,11 +97,11 @@ public class AuthServiceImpl implements AuthService {
             registerValidate(registerDTO);
 
             // Crear nueva cuenta
-            Account newAccount = createNewAccount();
+            Account newAccount = accountService.createAccount();
             accountRepository.save(newAccount);
 
             // Crear nuevo cliente y asociar la cuenta
-            Client newClient = createNewClient(registerDTO);
+            Client newClient = clientService.createNewClient(registerDTO);
             newClient.addAccount(newAccount);
             clientRepository.save(newClient);
 
@@ -133,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ClientDTO getCurrentClient(Authentication authentication) {
-        Client client = clientRepository.findByEmail(authentication.getName());
+        Client client = clientService.getAuthenticatedClient(authentication);
         return new ClientDTO(client);
     }
 }

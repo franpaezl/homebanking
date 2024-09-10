@@ -36,10 +36,14 @@ public class AccountController {
 
     @GetMapping("accounts/{id}")
     public ResponseEntity<?> getAccountById(@PathVariable Long id) {
-        Optional<AccountDTO> accountDTO = accountService.getAccountById(id);
-        return accountDTO.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        AccountDTO accountDTO = accountService.getAccountById(id);
+        if (accountDTO != null) {
+            return new ResponseEntity<>(accountDTO, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
+
 
     @PostMapping("/clients/current/accounts")
     public ResponseEntity<?> createAccount(Authentication authentication) {

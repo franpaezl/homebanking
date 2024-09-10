@@ -2,8 +2,7 @@ package com.minhub.homebanking.controllers;
 
 import com.minhub.homebanking.dtos.CardDTO;
 import com.minhub.homebanking.dtos.CreateCardDTO;
-import com.minhub.homebanking.models.Client;
-import com.minhub.homebanking.repositories.ClientRepository;
+import com.minhub.homebanking.models.Card;
 import com.minhub.homebanking.service.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,15 +17,12 @@ import java.util.Set;
 public class CardController {
 
     @Autowired
-    ClientRepository clientRepository;
-
-    @Autowired
     private CardService cardService;
 
     @PostMapping("/current/cards")
     public ResponseEntity<?> createCard(@RequestBody CreateCardDTO createCardDTO, Authentication authentication) {
         try {
-            cardService.createCardForAuthenticatedClient(authentication, createCardDTO);
+           Card card = cardService.createCardForAuthenticatedClient(authentication, createCardDTO);
             return new ResponseEntity<>("Card created", HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
@@ -37,9 +33,7 @@ public class CardController {
 
     @GetMapping("/current/cards")
     public ResponseEntity<?> getClientCards(Authentication authentication) {
-        Client client = clientRepository.findByEmail(authentication.getName());
-        Set<CardDTO> cardDto = cardService.getClientCardsDTO(client);
-
+        Set<CardDTO> cardDto = cardService.getAuthenticatedClientCardsDTO(authentication);
         return new ResponseEntity<>(cardDto, HttpStatus.OK);
     }
 }

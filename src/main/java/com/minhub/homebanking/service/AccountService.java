@@ -14,15 +14,20 @@ public interface AccountService {
 
     List<AccountDTO> transformAccountsToAccountsDTO(List<Account> accountList);
 
-    Optional<AccountDTO> getAccountById(Long id);
+    List<AccountDTO> getClientAccounts(Authentication authentication);
 
-    void validateMaxAccountsNotExceeded(Client client);
+    AccountDTO getAccountById(Long id);
 
-    Account createNewAccount();
+    String generateAccountNumber();
+
+    Account createAccount();
+
+    void maxAccountsNotExceeded(Client client);
 
     Account addAndSaveAccount(Authentication authentication);
 
-    List<AccountDTO> getClientAccounts(Authentication authentication);
+    Account findAccountByNumber(String string);
+
 
 
 }

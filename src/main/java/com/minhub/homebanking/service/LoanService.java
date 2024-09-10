@@ -3,6 +3,7 @@ package com.minhub.homebanking.service;
 import com.minhub.homebanking.dtos.LoanAplicationDTO;
 import com.minhub.homebanking.dtos.LoanDTO;
 import com.minhub.homebanking.models.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -18,7 +19,5 @@ public interface LoanService {
 
     ClientLoan createClientLoan(LoanAplicationDTO loanAplicationDTO);
 
-    Transaction createTransaction(LoanAplicationDTO loanAplicationDTO);
-
-    Loan processLoanApplication(LoanAplicationDTO loanAplicationDTO, Client client);
+    Loan processLoanApplication(LoanAplicationDTO loanAplicationDTO, Authentication authentication);
 }

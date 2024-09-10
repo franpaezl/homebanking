@@ -1,14 +1,16 @@
 package com.minhub.homebanking.service;
 
+import com.minhub.homebanking.dtos.LoanAplicationDTO;
 import com.minhub.homebanking.dtos.MakeTransactionDTO;
 import com.minhub.homebanking.models.Account;
 import com.minhub.homebanking.models.Client;
 import com.minhub.homebanking.models.Transaction;
+import com.minhub.homebanking.models.TransactionType;
 import org.springframework.security.core.Authentication;
 
 public interface TransactionService {
 
-    Transaction createTransaction(MakeTransactionDTO makeTransactionDTO, Authentication authentication);
+    Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO, Authentication authentication);
 
     void validateTransactionInputs(MakeTransactionDTO makeTransactionDTO);
 
@@ -18,7 +20,9 @@ public interface TransactionService {
 
     void validateSufficientBalance(Account account, Double amount);
 
-    Transaction createTransaction(MakeTransactionDTO makeTransactionDTO, Account transactionAccount, Account destinationAccount);
+    Transaction createTransaction(MakeTransactionDTO makeTransactionDTO, TransactionType transactionType);
 
-    void updateAccountBalances(MakeTransactionDTO makeTransactionDTO, Account transactionAccount, Account destinationAccount);
+    Transaction createTransactionToLoan(LoanAplicationDTO loanAplicationDTO);
+
+
 }
