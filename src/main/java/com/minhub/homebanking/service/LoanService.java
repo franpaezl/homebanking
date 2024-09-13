@@ -9,7 +9,9 @@ import java.util.List;
 
 public interface LoanService {
 
-    List<LoanDTO> getAllLoans();
+    List<Loan> getAllLoans();
+
+    List<LoanDTO> getAllLoansDTO();
 
     void verificatedLoan(LoanAplicationDTO loanAplicationDTO, Client client, Account account, Loan loan);
 

@@ -10,8 +10,14 @@ import java.util.Set;
 
 public interface CardService {
     String generateCVV();
+
     Card createCard(CreateCardDTO createCardDTO);
+
+    void validateCard(Set<Card> existingCards, CreateCardDTO createCardDTO);
+
     Card createCardForAuthenticatedClient(Authentication authentication, CreateCardDTO createCardDTO);
+
     Set<CardDTO> getClientCardsDTO(Client client);
+
     Set<CardDTO> getAuthenticatedClientCardsDTO(Authentication authentication);
 }

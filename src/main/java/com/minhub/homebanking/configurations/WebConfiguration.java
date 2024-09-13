@@ -38,8 +38,9 @@ public class WebConfiguration {
 
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/api/clients/**").permitAll()
-                                .requestMatchers("/api/auth/login", "/api/auth/register", "/h2-console/**").permitAll() // Permite acceso sin autenticación a estas rutas.
+                                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                                .requestMatchers("/api/current", "api/loans/" , "/api/transaction/" , "/api/clients/current/cards", "/api/clients/current/accounts").hasRole("CLIENT")
+                                .requestMatchers("/api/clients", "/api/clients/", "/api/clients/{id}", "/api/accounts" , "/api/accounts/{id}").hasRole("ADMIN")
                                 .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class) // Añade el filtro JWT antes del filtro de autenticación por nombre de usuario y contraseña.

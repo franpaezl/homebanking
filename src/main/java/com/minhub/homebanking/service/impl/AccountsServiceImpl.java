@@ -3,8 +3,8 @@ package com.minhub.homebanking.service.impl;
 import com.minhub.homebanking.dtos.AccountDTO;
 import com.minhub.homebanking.models.Account;
 import com.minhub.homebanking.models.Client;
+import com.minhub.homebanking.models.Transaction;
 import com.minhub.homebanking.repositories.AccountRepository;
-import com.minhub.homebanking.repositories.ClientRepository;
 import com.minhub.homebanking.service.AccountService;
 import com.minhub.homebanking.service.ClientService;
 import com.minhub.homebanking.utils.AccountNumberGenerator;
@@ -24,10 +24,6 @@ public class AccountsServiceImpl implements AccountService {
 
     @Autowired
     AccountNumberGenerator accountNumberGenerator;
-
-    @Autowired
-    ClientRepository clientRepository;
-
 
     @Autowired
     ClientService clientService;
@@ -55,28 +51,60 @@ public class AccountsServiceImpl implements AccountService {
     }
 
     @Override
-    public String generateAccountNumber() {
+    public String createAccountNumber() {
+        return "VIN-" + accountNumberGenerator.generateEightDigitNumber();
+    }
+
+
+    @Override
+    public Boolean existAccountNumber(String accountNumber) {
+        return accountRepository.existsByAccountNumber(accountNumber);
+
+    }
+
+
+    @Override
+    public String generateAndValidateAccountNumber() {
         String accountNumber;
         do {
-            accountNumber = "VIN-" + accountNumberGenerator.generateEightDigitNumber();
-        } while (accountRepository.existsByAccountNumber(accountNumber));
+            accountNumber = createAccountNumber();
+        } while (existAccountNumber(accountNumber));
 
         return accountNumber;
+    }
+
+    @Override
+    public void saveAccount(Account account) {
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void addTransactionToAccount(Account account, Transaction transaction) {
+        account.addTransaction(transaction);
+    }
+
+    @Override
+    public void addAmountToAccount(Account account, double amount) {
+        account.setBalance(account.getBalance() + amount);
+    }
+
+    @Override
+    public void subtractAmountToAccount(Account account, double amount) {
+        account.setBalance(account.getBalance() - amount);
     }
 
 
     @Override
     public Account createAccount() {
-        return new Account(generateAccountNumber(),0, LocalDateTime.now());
+        return new Account(generateAndValidateAccountNumber(), 0, LocalDateTime.now());
     }
 
     @Override
     public void maxAccountsNotExceeded(Client client) {
-        if(client.getAccounts().size() == 3) {
+        if (client.getAccounts().size() == 3) {
             throw new IllegalArgumentException("You cannot create a new account at this time. You have reached the maximum number of allowed accounts (3)");
         }
     }
-
 
 
     @Override
@@ -91,7 +119,7 @@ public class AccountsServiceImpl implements AccountService {
 
         accountRepository.save(newAccount);
 
-        clientRepository.save(client);
+        clientService.saveClient(client);
 
         return newAccount;
     }

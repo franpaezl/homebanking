@@ -3,18 +3,19 @@ package com.minhub.homebanking.service.impl;
 import com.minhub.homebanking.dtos.CreateCardDTO;
 import com.minhub.homebanking.dtos.CardDTO;
 import com.minhub.homebanking.models.Card;
+import com.minhub.homebanking.models.CardColor;
+import com.minhub.homebanking.models.CardType;
 import com.minhub.homebanking.models.Client;
 import com.minhub.homebanking.repositories.CardRepository;
 import com.minhub.homebanking.repositories.ClientRepository;
 import com.minhub.homebanking.service.CardService;
-import com.minhub.homebanking.utils.CVVGenerated;
-import com.minhub.homebanking.utils.CardNumberGenerated;
-import com.minhub.homebanking.utils.CardValidate;
-import com.minhub.homebanking.utils.GetAuthenticatedClient;
+import com.minhub.homebanking.service.ClientService;
+import com.minhub.homebanking.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.synth.ColorType;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,30 +35,31 @@ public class CardsServiceImpl implements CardService {
     @Autowired
     private ClientRepository clientRepository;
 
-    @Autowired
-    private CardValidate cardValidate;
+
 
     @Autowired
     private GetAuthenticatedClient getAuthenticatedClient;
 
+    @Autowired
+    private ClientService clientService;
 
 
     @Override
-    public String generateCVV(){
-        String cvv;
-        do {
-            cvv = cvvGenerated.generateFourDigitNumber();
-        }
-        while (cardRepository.existsByCvv(cvv));
-
-        return cvv;
+    public String generateCVV() {
+        return cvvGenerated.generateFourDigitNumber();
     }
 
     @Override
     public Card createCard(CreateCardDTO createCardDTO) {
+        String newCardType = createCardDTO.cardType().toUpperCase();
+        String newCardColor = createCardDTO.cardColor().toUpperCase();
+
+        CardColor cardColor = CardColor.valueOf(newCardColor);
+        CardType cardType = CardType.valueOf(newCardType);
+
         return new Card(
-                createCardDTO.cardType(),
-                createCardDTO.cardColor(),
+                cardType,
+                cardColor,
                 cardNumberGenerated.generateCardNumber(),
                 generateCVV(),
                 LocalDateTime.now(),
@@ -66,19 +68,66 @@ public class CardsServiceImpl implements CardService {
     }
 
 
+    @Override
+    public void validateCard(Set<Card> existingCards, CreateCardDTO createCardDTO) {
+        String newCardType = createCardDTO.cardType();//DEBIT
+
+        String newCardColor = createCardDTO.cardColor();//GOLD
+
+        if (newCardType == null || newCardType.isBlank()) {
+            throw new IllegalArgumentException("Card type cannot be empty.");
+        }
+
+        if (newCardColor == null || newCardColor.isBlank()) {
+            throw new IllegalArgumentException("Card color cannot be empty.");
+        }
+
+        CardType enumCardType;
+        CardColor enumColorType;
+
+        try {
+            enumCardType = CardType.valueOf(newCardType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid card type: " + newCardType);
+        }
+
+        try {
+            enumColorType = CardColor.valueOf(newCardColor.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid card color: " + newCardColor);
+        }
+
+
+        long countByType = existingCards.stream()
+                .filter(card -> card.getType() == enumCardType)
+                .count();
+
+        if (countByType >= 3) {
+            throw new IllegalArgumentException("You have reached the maximum number of allowed " + newCardType + " cards (3)");
+        }
+
+
+        boolean colorExists = existingCards.stream()
+                .anyMatch(card -> card.getType() == enumCardType && card.getColor() == enumColorType);
+
+        if (colorExists) {
+            throw new IllegalArgumentException("A card with color " + newCardColor + " already exists for this card type.");
+        }
+    }
+
 
     @Override
     public Card createCardForAuthenticatedClient(Authentication authentication, CreateCardDTO createCardDTO) {
-        Client client = getAuthenticatedClient.getAuthenticatedClient(authentication);
+        Client client = clientService.getAuthenticatedClient(authentication);
         Set<Card> existingCards = client.getCards();
 
-        cardValidate.validateCards(existingCards, createCardDTO);
+        validateCard(existingCards, createCardDTO);
 
         Card newCard = createCard(createCardDTO);
-        client.addCards(newCard);
+        clientService.addCardsToClient(client, newCard);
 
         cardRepository.save(newCard);
-        clientRepository.save(client);
+        clientService.saveClient(client);
 
         return newCard;
     }
@@ -92,7 +141,7 @@ public class CardsServiceImpl implements CardService {
 
     @Override
     public Set<CardDTO> getAuthenticatedClientCardsDTO(Authentication authentication) {
-        Client client = getAuthenticatedClient.getAuthenticatedClient(authentication);
+        Client client = clientService.getAuthenticatedClient(authentication);
         return getClientCardsDTO(client);
     }
 }

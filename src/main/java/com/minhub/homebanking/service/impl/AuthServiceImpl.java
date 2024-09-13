@@ -80,9 +80,18 @@ public class AuthServiceImpl implements AuthService {
         if (clientRepository.findByEmail(registerDTO.email()) != null) {
             throw new IllegalArgumentException("Email already exists");
         }
-        if (registerDTO.firstName().isBlank() || registerDTO.lastName().isBlank()) {
-            throw new IllegalArgumentException("First name and last name cannot be empty");
+        if (registerDTO.firstName().isBlank()) {
+            throw new IllegalArgumentException("First name and  cannot be empty");
         }
+
+        if (registerDTO.lastName().isBlank()) {
+            throw new IllegalArgumentException("Last name and  cannot be empty");
+        }
+
+        if(registerDTO.password().isBlank()|| registerDTO.password() == null){
+            throw new IllegalArgumentException("Insert password");
+        }
+
         if (registerDTO.password().length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters long");
         }
@@ -96,14 +105,14 @@ public class AuthServiceImpl implements AuthService {
             // Validar los datos del registro
             registerValidate(registerDTO);
 
-            // Crear nueva cuenta
+
             Account newAccount = accountService.createAccount();
-            accountRepository.save(newAccount);
+            accountService.saveAccount(newAccount);
 
             // Crear nuevo cliente y asociar la cuenta
             Client newClient = clientService.createNewClient(registerDTO);
-            newClient.addAccount(newAccount);
-            clientRepository.save(newClient);
+            clientService.addAccountToClient(newClient,newAccount);
+            clientService.saveClient(newClient);
 
             return new ResponseEntity<>("Client registered successfully", HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {

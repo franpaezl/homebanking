@@ -10,13 +10,10 @@ import com.minhub.homebanking.service.AccountService;
 import com.minhub.homebanking.service.ClientService;
 import com.minhub.homebanking.service.LoanService;
 import com.minhub.homebanking.service.TransactionService;
-import com.minhub.homebanking.utils.GetAuthenticatedClient;
-import com.minhub.homebanking.utils.LoanValidate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +23,6 @@ public class LoanServiceImpl implements LoanService {
     @Autowired
     LoanRepository loanRepository;
 
-    @Autowired
-    LoanValidate loanValidate;
 
     @Autowired
     AccountRepository accountRepository;
@@ -46,25 +41,27 @@ public class LoanServiceImpl implements LoanService {
 
 
     @Override
-    public List<LoanDTO> getAllLoans() {
-        List<Loan> loans = loanRepository.findAll();
-        List<LoanDTO> allLoans = loans.stream().map(LoanDTO::new).collect(Collectors.toList());
-        return allLoans;
+    public List<Loan> getAllLoans() {
+        return loanRepository.findAll();
 
     }
 
     @Override
+    public List<LoanDTO> getAllLoansDTO() {
+        return getAllLoans().stream().map(LoanDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
     public void verificatedLoan(LoanAplicationDTO loanAplicationDTO, Client client, Account account, Loan loan) {
-        if (loanAplicationDTO.account().isBlank()) {
+        if (loanAplicationDTO.accountNumber().isBlank() || loanAplicationDTO.accountNumber() == null) {
             throw new IllegalArgumentException("The transaction account field must not be empty");
         }
-
 
         if (account == null) {
             throw new IllegalArgumentException("The specified account does not exist.");
         }
 
-        if (!client.getAccounts().stream().map(Account::getAccountNumber).collect(Collectors.toList()).contains(loanAplicationDTO.account())) {
+        if (!client.getAccounts().stream().map(Account::getAccountNumber).collect(Collectors.toList()).contains(loanAplicationDTO.accountNumber())) {
             throw new IllegalArgumentException("The specified account does not belong to the authenticated client.");
         }
 
@@ -73,6 +70,11 @@ public class LoanServiceImpl implements LoanService {
             throw new IllegalArgumentException("Loan type not found.");
 
         }
+        if (loanAplicationDTO.amount() < 5000) {
+            throw new IllegalArgumentException("The loan amount does not meet the minimum amount required.");
+        }
+
+
         if (loanAplicationDTO.amount() > loan.getMaxAmount()) {
             throw new IllegalArgumentException("The loan amount exceeds the maximum amount allowed.");
         }
@@ -99,7 +101,7 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public double getAmountWithPercent(LoanAplicationDTO loanAplicationDTO) {
-        return loanAplicationDTO.amount() + (1 * addPercent(loanAplicationDTO));
+        return loanAplicationDTO.amount() + addPercent(loanAplicationDTO);
     }
 
 
@@ -111,7 +113,7 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public Loan processLoanApplication(LoanAplicationDTO loanAplicationDTO, Authentication authentication) {
         Client client = clientService.getAuthenticatedClient(authentication);
-        Account account = accountService.findAccountByNumber(loanAplicationDTO.account());
+        Account account = accountService.findAccountByNumber(loanAplicationDTO.accountNumber());
         Loan loan = loanRepository.findById(loanAplicationDTO.id()).orElse(null);
 
 
@@ -119,17 +121,19 @@ public class LoanServiceImpl implements LoanService {
 
 
         ClientLoan clientLoan = createClientLoan(loanAplicationDTO);
-        client.addClientLoans(clientLoan);
+        clientService.addClientLoanToClient(client, clientLoan);
         loan.addClientLoans(clientLoan);
 
 
         Transaction transaction = transactionService.createTransactionToLoan(loanAplicationDTO);
-        account.addTransaction(transaction);
-        account.setBalance(account.getBalance() + loanAplicationDTO.amount());
+        accountService.addTransactionToAccount(account, transaction);
+
+        accountService.addAmountToAccount(account, loanAplicationDTO.amount());
 
 
-        accountRepository.save(account);
-        clientRepository.save(client);
+
+        accountService.saveAccount(account);
+        clientService.saveClient(client);
         loanRepository.save(loan);
 
         return loan;

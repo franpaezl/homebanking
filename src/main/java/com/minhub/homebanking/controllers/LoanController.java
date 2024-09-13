@@ -27,7 +27,7 @@ public class LoanController {
 
     @GetMapping("/")
     public ResponseEntity<List<LoanDTO>> getAllLoans() {
-        List<LoanDTO> loanDTOs = loanService.getAllLoans();
+        List<LoanDTO> loanDTOs = loanService.getAllLoansDTO();
         return ResponseEntity.ok(loanDTOs);
     }
 

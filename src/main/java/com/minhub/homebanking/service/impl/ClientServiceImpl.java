@@ -2,7 +2,10 @@ package com.minhub.homebanking.service.impl;
 
 import com.minhub.homebanking.dtos.ClientDTO;
 import com.minhub.homebanking.dtos.RegisterDTO;
+import com.minhub.homebanking.models.Account;
+import com.minhub.homebanking.models.Card;
 import com.minhub.homebanking.models.Client;
+import com.minhub.homebanking.models.ClientLoan;
 import com.minhub.homebanking.repositories.ClientRepository;
 import com.minhub.homebanking.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +69,26 @@ public class ClientServiceImpl implements ClientService {
                 registerDTO.email(),
                 encodedPassword
         );
+    }
+
+    @Override
+    public void saveClient(Client client) {
+        clientRepository.save(client);
+    }
+
+    @Override
+    public void addAccountToClient(Client client, Account account) {
+        client.addAccount(account);
+    }
+
+    @Override
+    public void addCardsToClient(Client client, Card card) {
+        client.addCards(card);
+    }
+
+    @Override
+    public void addClientLoanToClient(Client client, ClientLoan clientLoan) {
+        client.addClientLoans(clientLoan);
     }
 }
 

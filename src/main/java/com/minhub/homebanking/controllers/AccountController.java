@@ -45,7 +45,7 @@ public class AccountController {
     }
 
 
-    @PostMapping("/clients/current/accounts")
+        @PostMapping("/clients/current/accounts")
     public ResponseEntity<?> createAccount(Authentication authentication) {
         try {
             Account newAccount = accountService.addAndSaveAccount(authentication);

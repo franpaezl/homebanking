@@ -122,18 +122,18 @@ public class HomebankingApplication {
 			clientLoanRepository.save(clientLoan3);
 			clientLoanRepository.save(clientLoan4);
 
-			// Crear tarjetas
-			Card card1 = new Card(CardType.DEBIT, CardColor.GOLD, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
-			Card card2 = new Card(CardType.DEBIT, CardColor.TITANIUM, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
-			client1.addCards(card1);
-			client1.addCards(card2);
-
-			cardRepository.save(card1);
-			cardRepository.save(card2);
-
-			Card card3 = new Card(CardType.DEBIT, CardColor.SILVER, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
-			client2.addCards(card3);
-			cardRepository.save(card3);
+//			// Crear tarjetas
+//			Card card1 = new Card(CardType.DEBIT, CardColor.GOLD, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
+//			Card card2 = new Card(CardType.DEBIT, CardColor.TITANIUM, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
+//			client1.addCards(card1);
+//			client1.addCards(card2);
+//
+//			cardRepository.save(card1);
+//			cardRepository.save(card2);
+//
+//			Card card3 = new Card(CardType.DEBIT, CardColor.SILVER, cardNumberGenerated.generateCardNumber(), cardService.generateCVV(), now, now.plusYears(5));
+//			client2.addCards(card3);
+//			cardRepository.save(card3);
 		};
 	}
 

@@ -30,7 +30,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private ClientRepository clientRepository;
 
-
     @Autowired
     private ClientService clientService;
 
@@ -39,20 +38,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void validateTransactionInputs(MakeTransactionDTO makeTransactionDTO) {
-        if (makeTransactionDTO.transactionAccount().isBlank()) {
-            throw new IllegalArgumentException("The transaction account field must not be empty");
+        if (makeTransactionDTO.originAccount().isBlank()|| makeTransactionDTO.originAccount() == null) {
+            throw new IllegalArgumentException("The origin account field must not be empty");
         }
-        if (makeTransactionDTO.destinationAccount().isBlank()) {
+        if (makeTransactionDTO.destinationAccount().isBlank()|| makeTransactionDTO.destinationAccount() == null) {
             throw new IllegalArgumentException("The destination account field must not be empty");
         }
         if (makeTransactionDTO.amount() == null || makeTransactionDTO.amount() <= 0) {
             throw new IllegalArgumentException("Enter a valid amount");
         }
-        if (makeTransactionDTO.description().isBlank()) {
+        if (makeTransactionDTO.description().isBlank() || makeTransactionDTO.description() == null ) {
             throw new IllegalArgumentException("The description field must not be empty");
         }
-        if (makeTransactionDTO.destinationAccount().equals(makeTransactionDTO.transactionAccount())) {
-            throw new IllegalArgumentException("The transaction account and the destination account must not be the same");
+        if (makeTransactionDTO.destinationAccount().equals(makeTransactionDTO.originAccount())) {
+            throw new IllegalArgumentException("The origin account and the destination account must not be the same");
         }
     }
 
@@ -66,7 +65,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void validateAccountOwnership(Account account, Client client) {
         if (!account.getOwner().equals(client)) {
-            throw new IllegalArgumentException("The transaction account entered does not belong to the client");
+            throw new IllegalArgumentException("The origin account entered does not belong to the client");
         }
     }
 
@@ -79,10 +78,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction createTransaction(MakeTransactionDTO makeTransactionDTO, TransactionType transactionType) {
-        if (transactionType == TransactionType.DEBIT){
-            return new Transaction(makeTransactionDTO.amount() * -1, makeTransactionDTO.description(), LocalDateTime.now(),transactionType);
+        if (transactionType == TransactionType.DEBIT) {
+            return new Transaction(makeTransactionDTO.amount() * -1, makeTransactionDTO.description(), LocalDateTime.now(), transactionType);
+        } else {
+            return new Transaction(makeTransactionDTO.amount(), makeTransactionDTO.description(), LocalDateTime.now(), transactionType);
         }
-        else return new Transaction(makeTransactionDTO.amount(), makeTransactionDTO.description(), LocalDateTime.now(),transactionType);
     }
 
     @Override
@@ -96,33 +96,32 @@ public class TransactionServiceImpl implements TransactionService {
         Client authenticatedClient = clientService.getAuthenticatedClient(authentication);
 
         // Obtener las cuentas de la transacción y destino
-        Account transactionAccount = accountService.findAccountByNumber(makeTransactionDTO.transactionAccount());
+        Account originAccount = accountService.findAccountByNumber(makeTransactionDTO.originAccount());
         Account destinationAccount = accountService.findAccountByNumber(makeTransactionDTO.destinationAccount());
 
         // Validaciones
         validateTransactionInputs(makeTransactionDTO);
-        validateAccountExists(transactionAccount, "Transaction");
+        validateAccountExists(originAccount, "Origin");
         validateAccountExists(destinationAccount, "Destination");
-        validateAccountOwnership(transactionAccount, authenticatedClient);
-        validateSufficientBalance(transactionAccount, makeTransactionDTO.amount());
+        validateAccountOwnership(originAccount, authenticatedClient);
+        validateSufficientBalance(originAccount, makeTransactionDTO.amount());
 
         // Crear y registrar la transacción
         Transaction debitTransaction = createTransaction(makeTransactionDTO, TransactionType.DEBIT);
         Transaction creditTransaction = createTransaction(makeTransactionDTO, TransactionType.CREDIT);
 
-        transactionAccount.addTransaction(debitTransaction);
-        destinationAccount.addTransaction(creditTransaction);
+        accountService.addTransactionToAccount(originAccount,debitTransaction);
+        accountService.addTransactionToAccount(destinationAccount,creditTransaction);
 
         transactionRepository.save(debitTransaction);
         transactionRepository.save(creditTransaction);
 
-        transactionAccount.setBalance(transactionAccount.getBalance() - makeTransactionDTO.amount());
-        destinationAccount.setBalance(destinationAccount.getBalance() + makeTransactionDTO.amount());
-
-        accountRepository.save(transactionAccount);
-        accountRepository.save(destinationAccount);
+        accountService.subtractAmountToAccount(originAccount, makeTransactionDTO.amount());
+        accountService.addAmountToAccount(destinationAccount, makeTransactionDTO.amount());
 
 
+        accountService.saveAccount(originAccount);
+        accountService.saveAccount(destinationAccount);
 
         return debitTransaction;
     }

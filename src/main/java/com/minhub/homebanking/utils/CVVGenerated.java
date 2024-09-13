@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Component
 public class CVVGenerated {
 
-    public static String generateFourDigitNumber() {
+    public  String generateFourDigitNumber() {
         // Genera un número entero aleatorio entre 0 y 9999
         int randomNumber = ThreadLocalRandom.current().nextInt(0, 10000);
         // Formatea el número para que siempre tenga 4 cifras, incluyendo ceros a la izquierda
