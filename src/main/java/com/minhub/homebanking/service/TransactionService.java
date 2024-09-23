@@ -24,6 +24,7 @@ public interface TransactionService {
 
     Transaction createTransactionToLoan(LoanAplicationDTO loanAplicationDTO);
 
+     void saveTransaction(Transaction transaction);
 
 
 }

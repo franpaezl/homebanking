@@ -124,6 +124,7 @@ public class CardsServiceImpl implements CardService {
         validateCard(existingCards, createCardDTO);
 
         Card newCard = createCard(createCardDTO);
+        cardRepository.save(newCard);
         clientService.addCardsToClient(client, newCard);
 
         cardRepository.save(newCard);

@@ -91,6 +91,11 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public void saveTransaction(Transaction transaction){
+        transactionRepository.save(transaction);
+    }
+
+    @Override
     public Transaction makeTransaction(MakeTransactionDTO makeTransactionDTO, Authentication authentication) {
         // Obtener el cliente autenticado
         Client authenticatedClient = clientService.getAuthenticatedClient(authentication);

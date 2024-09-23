@@ -39,7 +39,7 @@ public class WebConfiguration {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                                .requestMatchers("/api/current", "api/loans/" , "/api/transaction/" , "/api/clients/current/cards", "/api/clients/current/accounts").hasRole("CLIENT")
+                                .requestMatchers("/api/current", "api/loans" , "/api/transaction/" , "/api/clients/current/cards", "/api/clients/current/accounts").hasRole("CLIENT")
                                 .requestMatchers("/api/clients", "/api/clients/", "/api/clients/{id}", "/api/accounts" , "/api/accounts/{id}").hasRole("ADMIN")
                                 .anyRequest().permitAll()
                 )

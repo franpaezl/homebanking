@@ -1,15 +1,11 @@
 package com.minhub.homebanking.models;
 
 import jakarta.persistence.*;
-
-
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 public class Client {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -19,18 +15,16 @@ public class Client {
     private String email;
     private String password;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private Set<Account> accounts = new HashSet<>();
 
-    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private Set<ClientLoan> clientLoans = new HashSet<>();
 
-    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private Set<Card> cards = new HashSet<>();
 
-
-    public Client() {
-    }
+    public Client() {}
 
     public Client(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
@@ -105,7 +99,6 @@ public class Client {
         this.cards = cards;
     }
 
-
     public void addAccount(Account account) {
         account.setOwner(this);
         this.accounts.add(account);
@@ -117,8 +110,8 @@ public class Client {
     }
 
     public void addCards(Card card) {
-        this.cards.add(card);
         card.setClient(this);
         card.setCardHolder(this.getFirstName() + " " + this.getLastName());
+        this.cards.add(card);
     }
 }

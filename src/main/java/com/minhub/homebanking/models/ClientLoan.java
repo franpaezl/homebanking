@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 
 @Entity
 public class ClientLoan {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -12,11 +11,11 @@ public class ClientLoan {
     private double amount;
     private int payments;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
     private Client client;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loan_id")
     private Loan loan;
 
@@ -26,8 +25,10 @@ public class ClientLoan {
     public ClientLoan(double amount, int payments) {
         this.amount = amount;
         this.payments = payments;
+
     }
 
+    // Getters and Setters
     public double getAmount() {
         return amount;
     }

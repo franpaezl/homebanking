@@ -116,27 +116,37 @@ public class LoanServiceImpl implements LoanService {
         Account account = accountService.findAccountByNumber(loanAplicationDTO.accountNumber());
         Loan loan = loanRepository.findById(loanAplicationDTO.id()).orElse(null);
 
-
         verificatedLoan(loanAplicationDTO, client, account, loan);
 
-
+        // Crear el ClientLoan
         ClientLoan clientLoan = createClientLoan(loanAplicationDTO);
+        clientLoan.setClient(client);  // Establecer el cliente en el ClientLoan
+        clientLoan.setLoan(loan);  // Establecer el préstamo en el ClientLoan
+
+        // Agregar el ClientLoan al cliente
         clientService.addClientLoanToClient(client, clientLoan);
+
+        // Agregar el ClientLoan al préstamo
         loan.addClientLoans(clientLoan);
 
-
+        // Crear la transacción para el préstamo
         Transaction transaction = transactionService.createTransactionToLoan(loanAplicationDTO);
+
+        // Añadir la transacción a la cuenta
         accountService.addTransactionToAccount(account, transaction);
 
+        // Aumentar el saldo de la cuenta
         accountService.addAmountToAccount(account, loanAplicationDTO.amount());
 
-
-
-        accountService.saveAccount(account);
-        clientService.saveClient(client);
-        loanRepository.save(loan);
+        // Guardar los cambios en la base de datos
+        clientRepository.save(client); // Asegúrate de guardar el cliente
+        loanRepository.save(loan); // Asegúrate de guardar el préstamo
+        transactionService.saveTransaction(transaction); // Guardar la transacción
+        accountService.saveAccount(account); // Guardar la cuenta
 
         return loan;
     }
+
+
 
 }

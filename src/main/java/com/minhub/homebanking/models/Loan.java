@@ -1,7 +1,7 @@
 package com.minhub.homebanking.models;
 
-import com.minhub.homebanking.dtos.LoanAplicationDTO;
 import jakarta.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,17 +18,16 @@ public class Loan {
     @Column(name = "payments")
     private List<Integer> payment;
 
-    @OneToMany(mappedBy = "loan", fetch = FetchType.EAGER)
-    private Set<ClientLoan> clientLoans;
+    @OneToMany(mappedBy = "loan", fetch = FetchType.LAZY)
+    private Set<ClientLoan> clientLoans = new HashSet<>();
 
     public Loan() {
     }
 
-    public Loan(String name, double maxAmount, List<Integer> payment, Set<ClientLoan> clientLoans) {
+    public Loan(String name, double maxAmount, List<Integer> payment) {
         this.name = name;
         this.maxAmount = maxAmount;
         this.payment = payment;
-        this.clientLoans = clientLoans;
     }
 
     public Long getId() {
@@ -67,50 +66,10 @@ public class Loan {
         return clientLoans;
     }
 
-    public void setClientLoans(Set<ClientLoan> clientLoans) {
-        this.clientLoans = clientLoans;
+    public void addClientLoans(ClientLoan clientLoan) {
+        if (clientLoan != null && !this.clientLoans.contains(clientLoan)) {
+            clientLoan.setLoan(this);
+            this.clientLoans.add(clientLoan);
+        }
     }
-
-    public void addClientLoans(ClientLoan clientLoan){
-        clientLoan.setLoan(this);
-        clientLoans.add(clientLoan);
-    }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

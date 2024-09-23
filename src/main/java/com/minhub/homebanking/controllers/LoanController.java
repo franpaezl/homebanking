@@ -25,7 +25,7 @@ public class LoanController {
     @Autowired
     private LoanService loanService;
 
-    @GetMapping("/")
+    @GetMapping("/all/")
     public ResponseEntity<List<LoanDTO>> getAllLoans() {
         List<LoanDTO> loanDTOs = loanService.getAllLoansDTO();
         return ResponseEntity.ok(loanDTOs);
