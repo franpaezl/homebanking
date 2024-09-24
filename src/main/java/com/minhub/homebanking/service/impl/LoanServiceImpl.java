@@ -57,39 +57,47 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public void verificatedLoan(LoanAplicationDTO loanAplicationDTO, Client client, Account account, Loan loan) {
+        // Validar que el número de cuenta no esté vacío o sea nulo
         if (loanAplicationDTO.accountNumber().isBlank() || loanAplicationDTO.accountNumber() == null) {
             throw new IllegalArgumentException("The transaction account field must not be empty");
         }
 
+        // Validar que la cuenta exista
         if (account == null) {
             throw new IllegalArgumentException("The specified account does not exist.");
         }
 
+        // Verificar que la cuenta pertenezca al cliente autenticado
         if (!client.getAccounts().stream().map(Account::getAccountNumber).collect(Collectors.toList()).contains(loanAplicationDTO.accountNumber())) {
             throw new IllegalArgumentException("The specified account does not belong to the authenticated client.");
         }
 
-
+        // Validar que el tipo de préstamo exista
         if (loan == null) {
             throw new IllegalArgumentException("Loan type not found.");
-
         }
+
+        // Validar que el cliente no tenga ya un préstamo del mismo tipo
+        if (clientLoanRepository.existsByClientAndLoanId(client, loan.getId())) {
+            throw new IllegalArgumentException("The client already has a loan of this type.");
+        }
+
+        // Validar que el monto del préstamo sea mayor al mínimo requerido
         if (loanAplicationDTO.amount() < 5000) {
             throw new IllegalArgumentException("The loan amount does not meet the minimum amount required.");
         }
 
-
+        // Validar que el monto del préstamo no exceda el máximo permitido
         if (loanAplicationDTO.amount() > loan.getMaxAmount()) {
             throw new IllegalArgumentException("The loan amount exceeds the maximum amount allowed.");
         }
 
+        // Validar que el número de pagos sea válido para el tipo de préstamo seleccionado
         if (!loan.getPayment().contains(loanAplicationDTO.payments())) {
             throw new IllegalArgumentException("The number of payments is not valid for the selected loan.");
-
         }
-
-
     }
+
 
 
     @Override
