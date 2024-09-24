@@ -17,7 +17,7 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration(); // Crea una nueva configuración de CORS.
 
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:5173","http://localhost:5175", "https://homebankingfront.onrender.com")); // Define los orígenes permitidos.
-x
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // Define los métodos HTTP permitidos.
 
         configuration.setAllowedHeaders(List.of("*")); // Define los encabezados permitidos, permitiendo todos.
