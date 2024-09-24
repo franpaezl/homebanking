@@ -4,6 +4,7 @@ import com.minhub.homebanking.dtos.LoanAplicationDTO;
 import com.minhub.homebanking.dtos.LoanDTO;
 import com.minhub.homebanking.models.*;
 import com.minhub.homebanking.repositories.AccountRepository;
+import com.minhub.homebanking.repositories.ClientLoanRepository;
 import com.minhub.homebanking.repositories.ClientRepository;
 import com.minhub.homebanking.repositories.LoanRepository;
 import com.minhub.homebanking.service.AccountService;
@@ -23,6 +24,9 @@ public class LoanServiceImpl implements LoanService {
     @Autowired
     LoanRepository loanRepository;
 
+
+    @Autowired
+    ClientLoanRepository clientLoanRepository;
 
     @Autowired
     AccountRepository accountRepository;
@@ -120,6 +124,7 @@ public class LoanServiceImpl implements LoanService {
 
         // Crear el ClientLoan
         ClientLoan clientLoan = createClientLoan(loanAplicationDTO);
+
         clientLoan.setClient(client);  // Establecer el cliente en el ClientLoan
         clientLoan.setLoan(loan);  // Establecer el préstamo en el ClientLoan
 
@@ -128,6 +133,8 @@ public class LoanServiceImpl implements LoanService {
 
         // Agregar el ClientLoan al préstamo
         loan.addClientLoans(clientLoan);
+
+
 
         // Crear la transacción para el préstamo
         Transaction transaction = transactionService.createTransactionToLoan(loanAplicationDTO);
@@ -139,6 +146,8 @@ public class LoanServiceImpl implements LoanService {
         accountService.addAmountToAccount(account, loanAplicationDTO.amount());
 
         // Guardar los cambios en la base de datos
+
+        clientLoanRepository.save(clientLoan);
         clientRepository.save(client); // Asegúrate de guardar el cliente
         loanRepository.save(loan); // Asegúrate de guardar el préstamo
         transactionService.saveTransaction(transaction); // Guardar la transacción
