@@ -61,7 +61,7 @@ public class LoanServiceImpl implements LoanService {
             throw new IllegalArgumentException("The specified account does not exist.");
         }
 
-        if (!client.getAccounts().stream().map(Account::getAccountNumber).collect(Collectors.toList()).contains(loanAplicationDTO.accountNumber())) {
+        if (client.getAccounts().stream().map(Account::getAccountNumber).collect(Collectors.toList()).contains(loanAplicationDTO.accountNumber())) {
             throw new IllegalArgumentException("The specified account does not belong to the authenticated client.");
         }
 

@@ -159,6 +159,8 @@ public class HomebankingApplication {
             loanRepository.save(personal);
             loanRepository.save(automotive);
 
+
+
             // Crear préstamos de clientes
             ClientLoan clientLoan1 = new ClientLoan(400000, 60);
             client1.addClientLoans(clientLoan1);
