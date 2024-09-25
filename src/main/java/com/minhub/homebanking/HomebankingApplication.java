@@ -44,7 +44,7 @@ public class HomebankingApplication {
 
             // Crear clientes
             Client client1 = new Client("Melba", "Morel", "melbamorel@hotmail.com", passwordEncoder.encode("melba123"));
-            Client client2 = new Client("Fran", "Paez", "fran.paez@hotmail.com", passwordEncoder.encode("melba123"));
+            Client client2 = new Client("Fran", "Paez", "fran.paez@gmail.com", passwordEncoder.encode("melba123"));
             Client client3 = new Client("Pepe", "Pérez", "pepeperez@gmail.com", passwordEncoder.encode("melba123"));
 
             clientRepository.save(client1);
