@@ -175,6 +175,8 @@ public class HomebankingApplication {
             personal.addClientLoans(clientLoan3);
 
             ClientLoan clientLoan4 = new ClientLoan(200000, 36);
+            client1.addClientLoans(clientLoan4);
+            automotive.addClientLoans(clientLoan4);
             client2.addClientLoans(clientLoan4);
             automotive.addClientLoans(clientLoan4);
 
